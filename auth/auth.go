@@ -81,7 +81,9 @@ type Response struct {
 
 func (u *Users) CurrentUser(r *http.Request) (string, bool) {
 	s, _ := u.store.Get(r, "user")
+
 	user, ok := s.Values["user"].(string)
+
 	if !ok {
 		return "guest", ok
 	}
@@ -102,28 +104,38 @@ func (u *Users) Logout(w http.ResponseWriter, r *http.Request) {
 }
 
 func (u *Users) Authenticate(w http.ResponseWriter, r *http.Request) {
-	user := r.FormValue("user")
-	pass := r.FormValue("pass")
+	s, _ := u.store.Get(r, "user")
+	_, ok := s.Values["user"].(string)
 
-	if !u.Validate(user, pass) {
-		w.WriteHeader(401)
-		_ = json.NewEncoder(w).Encode(&Response{
-			Message: "could not authenticate",
-		})
-		return
+	if !ok {
+		headers := r.Header
+		users, ok := headers["X-Authenticated-User"]
+
+		if !ok || len(users) > 1 {
+			w.WriteHeader(401)
+			_ = json.NewEncoder(w).Encode(&Response{
+				Message: "could not authenticate",
+			})
+			return
+		}
+
+		user := users[0]
+
+		session := sessions.NewSession(u.store, "user")
+		session.IsNew = true
+		session.Options.MaxAge = u.sessionTimeout
+		session.Values["user"] = user
+
+		if err := u.store.Save(r, w, session); err != nil {
+			w.WriteHeader(500)
+			_ = json.NewEncoder(w).Encode(&Response{
+				Message: err.Error(),
+			})
+			return
+		}
 	}
 
-	session := sessions.NewSession(u.store, "user")
-	session.IsNew = true
-	session.Options.MaxAge = u.sessionTimeout
-	session.Values["user"] = user
-	if err := u.store.Save(r, w, session); err != nil {
-		w.WriteHeader(500)
-		_ = json.NewEncoder(w).Encode(&Response{
-			Message: err.Error(),
-		})
-		return
-	}
+
 	w.WriteHeader(200)
 	_ = json.NewEncoder(w).Encode(&Response{
 		Message: "authenticated",

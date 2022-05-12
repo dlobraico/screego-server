@@ -1,19 +1,10 @@
 import React from 'react';
-import {setPermanentName} from './name';
 import {
     Badge,
-    Button,
-    Checkbox,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    FormControlLabel,
     IconButton,
     Menu,
     MenuItem,
     Paper,
-    TextField,
     Theme,
     Tooltip,
     Typography,
@@ -73,18 +64,14 @@ export const Room = ({
     state,
     share,
     stopShare,
-    setName,
 }: {
     state: ConnectedRoom;
     share: () => void;
     stopShare: () => void;
-    setName: (name: string) => void;
 }) => {
     const classes = useStyles();
-    const [open, setOpen] = React.useState(false);
+    const [open] = React.useState(false);
     const {enqueueSnackbar} = useSnackbar();
-    const [nameInput, setNameInput] = React.useState('');
-    const [permanent, setPermanent] = React.useState(false);
     const [showControl, setShowControl] = React.useState(true);
     const [hoverControl, setHoverControl] = React.useState(false);
     const [showMore, setShowMore] = React.useState<Element>();
@@ -120,14 +107,6 @@ export const Room = ({
         selectedStream === HostStream
             ? state.hostStream
             : state.clientStreams.find(({id}) => selectedStream === id)?.stream;
-
-    const submitName = () => {
-        if (permanent) {
-            setPermanentName(nameInput);
-        }
-        setName(nameInput);
-        setOpen(false);
-    };
 
     React.useEffect(() => {
         if (videoElement && stream) {
@@ -306,15 +285,6 @@ export const Room = ({
                         <MenuItem onClick={(e) => setShowDisplayOptions(e.currentTarget)}>
                             Display Mode
                         </MenuItem>
-
-                        <MenuItem
-                            onClick={() => {
-                                setShowMore(undefined);
-                                setOpen(true);
-                            }}
-                        >
-                            Change Name
-                        </MenuItem>
                     </Menu>
 
                     <Menu
@@ -410,40 +380,6 @@ export const Room = ({
                     </Paper>
                 )}
             </div>
-
-            <Dialog open={open} onClose={() => setOpen(false)}>
-                <DialogTitle>Change Name</DialogTitle>
-                <DialogContent>
-                    <form onSubmit={submitName}>
-                        <TextField
-                            autoFocus
-                            margin="dense"
-                            label="Username"
-                            value={nameInput}
-                            onChange={(e) => setNameInput(e.target.value)}
-                            fullWidth
-                        />
-
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={permanent}
-                                    onChange={(_, checked) => setPermanent(checked)}
-                                />
-                            }
-                            label="Remember"
-                        />
-                    </form>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setOpen(false)} color="primary">
-                        Cancel
-                    </Button>
-                    <Button onClick={submitName} color="primary">
-                        Change
-                    </Button>
-                </DialogActions>
-            </Dialog>
         </div>
     );
 };

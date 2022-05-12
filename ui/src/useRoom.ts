@@ -31,7 +31,6 @@ export interface UseRoom {
     state: RoomState;
     room: FCreateRoom;
     share: () => void;
-    setName: (name: string) => void;
     stopShare: () => void;
 }
 
@@ -315,10 +314,6 @@ export const useRoom = (config: UIConfig): UseRoom => {
         setState((current) => (current ? {...current, hostStream: undefined} : current));
     };
 
-    const setName = (name: string): void => {
-        conn.current?.send(JSON.stringify({type: 'name', payload: {username: name}}));
-    };
-
     React.useEffect(() => {
         if (roomID) {
             const create = getFromURL('create') === 'true';
@@ -344,5 +339,5 @@ export const useRoom = (config: UIConfig): UseRoom => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    return {state, room, share, stopShare, setName};
+    return {state, room, share, stopShare};
 };

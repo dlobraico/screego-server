@@ -33,7 +33,7 @@ func Router(conf config.Config, rooms *ws.Rooms, users *auth.Users, version stri
 	router.Use(hlog.AccessHandler(accessLogger))
 	router.Use(handlers.CORS(handlers.AllowedMethods([]string{"GET", "POST"}), handlers.AllowedOriginValidator(conf.CheckOrigin)))
 	router.HandleFunc("/stream", rooms.Upgrade)
-	router.Methods("POST").Path("/login").HandlerFunc(users.Authenticate)
+	router.Methods("GET").Path("/login").HandlerFunc(users.Authenticate)
 	router.Methods("POST").Path("/logout").HandlerFunc(users.Logout)
 	router.Methods("GET").Path("/config").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		user, loggedIn := users.CurrentUser(r)
