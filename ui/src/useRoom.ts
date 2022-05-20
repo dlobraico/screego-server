@@ -294,9 +294,15 @@ export const useRoom = (config: UIConfig): UseRoom => {
             );
             return;
         }
+        // CR dlobraico: Make these parameters interactively configurable.
         stream.current = await navigator.mediaDevices
             // @ts-ignore
-            .getDisplayMedia({video: { width: { ideal: 3840 }, height: { ideal: 2160 }}});
+            .getDisplayMedia(
+              { video:
+                { width: { ideal: 3840 },
+                  height: { ideal: 2160 },
+                  frameRate: { ideal: 30 }
+              }});
         stream.current?.getVideoTracks()[0].addEventListener('ended', () => stopShare());
         setState((current) => (current ? {...current, hostStream: stream.current} : current));
 
