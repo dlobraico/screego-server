@@ -26,11 +26,18 @@ func (e *Join) Execute(rooms *Rooms, current ClientInfo) error {
 	if !ok {
 		return fmt.Errorf("room with id %s does not exist", e.ID)
 	}
+
+	if room.Locked {
+		return fmt.Errorf("room with id %s is locked; please contact the host and ask them to unlock it", e.ID)
+	}
+
 	name := e.UserName
 	if current.Authenticated {
 		name = current.AuthenticatedUser
 	}
 	if name == "" {
+		// CR dlobraico: Consider just denying access to unauth'd users
+		// since that's in practice what we do thanks to the krb-proxy.
 		name = util.NewName()
 	}
 

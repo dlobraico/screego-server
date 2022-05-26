@@ -53,6 +53,7 @@ export interface RoomInfo {
     share: ShareMode;
     mode: RoomMode;
     users: RoomUser[];
+    locked : boolean;
 }
 
 export interface RoomUser {
@@ -82,6 +83,13 @@ export type StopShare = Typed<{}, 'stopshare'>;
 export type RoomCreate = Typed<RoomConfiguration & {joinIfExist?: boolean}, 'create'>;
 export type JoinRoom = Typed<JoinConfiguration, 'join'>;
 export type EndShare = Typed<string, 'endshare'>;
+// CR dlobraico: It would be tidier if there were just two messages
+// "SetLockStatus" and "LockStatusSet", with bool payloads indicating the lock
+// status.
+export type LockRoom = Typed<string, 'lockroom'>;
+export type UnlockRoom = Typed<string, 'unlockroom'>;
+export type RoomLocked = Typed<string, 'roomlocked'>;
+export type RoomUnlocked = Typed<string, 'roomunlocked'>;
 
 export type IncomingMessage =
     | Room
@@ -92,7 +100,9 @@ export type IncomingMessage =
     | ClientICECandidate
     | HostOffer
     | EndShare
-    | ClientAnswer;
+    | ClientAnswer
+    | RoomLocked
+    | RoomUnlocked;
 
 export type OutgoingMessage =
     | RoomCreate
@@ -103,4 +113,6 @@ export type OutgoingMessage =
     | HostOffer
     | StopShare
     | ClientAnswer
-    | StartSharing;
+    | StartSharing
+    | LockRoom
+    | UnlockRoom;

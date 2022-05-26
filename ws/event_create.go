@@ -62,6 +62,7 @@ func (e *Create) Execute(rooms *Rooms, current ClientInfo) error {
 	room := &Room{
 		ID:                e.ID,
 		CloseOnOwnerLeave: e.CloseOnOwnerLeave,
+		Locked:            false,
 		Mode:              e.Mode,
 		Sessions:          map[xid.ID]*RoomSession{},
 		Users: map[xid.ID]*User{

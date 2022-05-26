@@ -89,6 +89,18 @@ func (EndShare) Type() string {
 	return "endshare"
 }
 
+type RoomLocked xid.ID
+
+func (RoomLocked) Type() string {
+	return "roomlocked"
+}
+
+type RoomUnlocked xid.ID
+
+func (RoomUnlocked) Type() string {
+	return "roomunlocked"
+}
+
 type ConnectionMode string
 
 const (

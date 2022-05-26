@@ -21,6 +21,7 @@ const (
 type Room struct {
 	ID                string
 	CloseOnOwnerLeave bool
+	Locked            bool
 	Mode              ConnectionMode
 	Users             map[xid.ID]*User
 	Sessions          map[xid.ID]*RoomSession

@@ -14,6 +14,8 @@ import PresentToAllIcon from '@mui/icons-material/PresentToAll';
 import FullScreenIcon from '@mui/icons-material/Fullscreen';
 import PeopleIcon from '@mui/icons-material/People';
 import ShowMoreIcon from '@mui/icons-material/MoreVert';
+import LockIcon from '@mui/icons-material/Lock';
+import LockOpenIcon from '@mui/icons-material/LockOpen';
 import {useHotkeys} from 'react-hotkeys-hook';
 import {Video} from './Video';
 import makeStyles from '@mui/styles/makeStyles';
@@ -64,10 +66,14 @@ export const Room = ({
     state,
     share,
     stopShare,
+    lock,
+    unlock,
 }: {
     state: ConnectedRoom;
     share: () => void;
     stopShare: () => void;
+    lock: () => void;
+    unlock: () => void;
 }) => {
     const classes = useStyles();
     const [open] = React.useState(false);
@@ -258,6 +264,21 @@ export const Room = ({
                             <PeopleIcon fontSize="large" />
                         </Badge>
                     </Tooltip>
+
+                    {state.locked ? (
+                        <Tooltip title="Unlock room" arrow>
+                            <IconButton onClick={unlock} size="large">
+                                <LockOpenIcon fontSize="large" />
+                            </IconButton>
+                        </Tooltip>
+                    ) : (
+                        <Tooltip title="Lock room" arrow>
+                            <IconButton onClick={lock} size="large">
+                                <LockIcon fontSize="large" />
+                            </IconButton>
+                        </Tooltip>
+                    )}
+
                     <Tooltip title="Fullscreen" arrow>
                         <span>
                             <IconButton

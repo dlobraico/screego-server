@@ -32,6 +32,8 @@ export interface UseRoom {
     room: FCreateRoom;
     share: () => void;
     stopShare: () => void;
+    lock: () => void;
+    unlock: () => void;
 }
 
 const relayConfig: Partial<RTCConfiguration> =
@@ -255,7 +257,14 @@ export const useRoom = (config: UIConfig): UseRoom => {
                                           ),
                                       }
                                     : current
-                            );
+                                    );
+                            return;
+                        case 'roomlocked':
+                            lock();
+                            return;
+                        case 'roomunlocked':
+                            unlock();
+                            return;
                     }
                 };
                 ws.onclose = (event) => {
@@ -320,6 +329,32 @@ export const useRoom = (config: UIConfig): UseRoom => {
         setState((current) => (current ? {...current, hostStream: undefined} : current));
     };
 
+    const lock = () => {
+        conn.current?.send(JSON.stringify({type: 'lockroom', payload: {}}));
+        setState((current) => (current ? { ...current, locked: true} : current));
+
+        enqueueSnackbar(
+            'Room locked to new participants',
+            {
+                variant: 'info',
+                persist: false,
+            }
+        );
+    };
+
+    const unlock = () => {
+        conn.current?.send(JSON.stringify({type: 'unlockroom', payload: {}}));
+        setState((current) => (current ? { ...current, locked: false} : current));
+
+        enqueueSnackbar(
+            'Room unlocked to new participants',
+            {
+                variant: 'info',
+                persist: false,
+            }
+        );
+    };
+
     React.useEffect(() => {
         if (roomID) {
             const create = getFromURL('create') === 'true';
@@ -345,5 +380,5 @@ export const useRoom = (config: UIConfig): UseRoom => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    return {state, room, share, stopShare};
+    return {state, room, share, stopShare, lock, unlock};
 };
