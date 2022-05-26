@@ -268,13 +268,13 @@ export const Room = ({
                     {state.locked ? (
                         <Tooltip title="Unlock room" arrow>
                             <IconButton onClick={unlock} size="large">
-                                <LockOpenIcon fontSize="large" />
+                                <LockIcon fontSize="large" />
                             </IconButton>
                         </Tooltip>
                     ) : (
                         <Tooltip title="Lock room" arrow>
                             <IconButton onClick={lock} size="large">
-                                <LockIcon fontSize="large" />
+                                <LockOpenIcon fontSize="large" />
                             </IconButton>
                         </Tooltip>
                     )}
