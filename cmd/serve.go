@@ -13,6 +13,7 @@ import (
 	"github.com/screego/server/router"
 	"github.com/screego/server/server"
 	"github.com/screego/server/turn"
+	sfu "github.com/screego/server/sfu"
 	"github.com/screego/server/ws"
 	"github.com/urfave/cli"
 )
@@ -44,7 +45,9 @@ func serveCmd(version string) cli.Command {
 				log.Fatal().Err(err).Msg("could not start turn server")
 			}
 
-			rooms := ws.NewRooms(auth, users, conf)
+			sfu := sfu.Start()
+
+			rooms := ws.NewRooms(sfu, auth, users, conf)
 
 			go rooms.Start()
 

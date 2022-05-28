@@ -11,13 +11,16 @@ import (
 	"github.com/screego/server/auth"
 	"github.com/screego/server/config"
 	"github.com/screego/server/turn"
+	"github.com/pion/ion-sfu/pkg/sfu"
+
 )
 
-func NewRooms(tServer turn.Server, users *auth.Users, conf config.Config) *Rooms {
+func NewRooms(sfu *sfu.SFU, tServer turn.Server, users *auth.Users, conf config.Config) *Rooms {
 	return &Rooms{
 		Rooms:      map[string]*Room{},
 		Incoming:   make(chan ClientMessage),
 		turnServer: tServer,
+		sfuServer:  sfu,
 		users:      users,
 		config:     conf,
 		upgrader: websocket.Upgrader{
@@ -40,6 +43,7 @@ func NewRooms(tServer turn.Server, users *auth.Users, conf config.Config) *Rooms
 
 type Rooms struct {
 	turnServer turn.Server
+	sfuServer  *sfu.SFU
 	Rooms      map[string]*Room
 	Incoming   chan ClientMessage
 	upgrader   websocket.Upgrader

@@ -4,10 +4,13 @@ import (
 	"fmt"
 	"net"
 	"sort"
+	"encoding/json"
 
 	"github.com/rs/xid"
 	"github.com/screego/server/config"
 	"github.com/screego/server/ws/outgoing"
+	"github.com/pion/ion-sfu/pkg/sfu"
+	"github.com/pion/webrtc/v3"
 )
 
 type ConnectionMode string
@@ -25,6 +28,7 @@ type Room struct {
 	Mode              ConnectionMode
 	Users             map[xid.ID]*User
 	Sessions          map[xid.ID]*RoomSession
+	Peer              sfu.Peer
 }
 
 const (
@@ -60,8 +64,25 @@ func (r *Room) newSession(host, client xid.ID, rooms *Rooms) {
 			Credential: clientPW,
 			Username:   clientName,
 		}}
-
 	}
+
+	peer := sfu.NewPeer(rooms.sfuServer)
+	defer peer.Close()
+	peer.Join(id.String(), client.String())
+
+	// CR dlobraico: Error handling
+	peer.OnOffer = func(sdp *webrtc.SessionDescription) {
+		value, _ := json.Marshal(sdp)
+		r.Users[host].Write <- outgoing.ClientAnswer{SID: id, Value: value}
+	}
+	peer.OnIceCandidate = func(iceCandidate *webrtc.ICECandidateInit, target int) {
+		value, _ := json.Marshal(iceCandidate)
+		r.Users[host].Write <- outgoing.ClientICE{SID: id, Value: value}
+	}
+
+
+	r.Peer = peer
+
 	r.Users[host].Write <- outgoing.HostSession{Peer: client, ID: id, ICEServers: iceHost}
 	r.Users[client].Write <- outgoing.ClientSession{Peer: host, ID: id, ICEServers: iceClient}
 }
